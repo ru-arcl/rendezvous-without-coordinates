@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rwc"
+version = "1.0.0"
+description = "Rendezvous without coordinates: Dubins-car agents with a three-valued windshield sensor"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD-3-Clause" }
+dependencies = []
+
+[project.optional-dependencies]
+oracle = ["numpy", "scipy"]
+viewer = ["matplotlib"]
+test = ["pytest", "numpy", "scipy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

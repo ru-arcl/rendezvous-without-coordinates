@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rendezvous Without Coordinates</title>
+<meta name="description" content="Dubins-car agents with a three-valued windshield sensor meet without ever measuring a coordinate.">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 L27 27 L16 21 L5 27 Z' fill='%23e8590c'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="title">
+    <h1>Rendezvous without coordinates</h1>
+    <p class="sub">Each agent sees only <em>which side of its windshield</em> its target left from, and turns that way. With a narrow enough windshield, they all meet.</p>
+  </div>
+  <div class="top-actions">
+    <a class="link" href="https://github.com/ru-arcl/rendezvous-without-coordinates">Code</a>
+    <button id="theme" class="ghost" type="button" aria-label="Toggle light/dark theme">Theme</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage">
+    <div class="views">
+      <div class="arena-wrap">
+        <canvas id="arena" aria-label="Agents in the plane"></canvas>
+      </div>
+      <div class="plot-wrap">
+        <canvas id="plot" aria-label="Lyapunov function V over time"></canvas>
+      </div>
+    </div>
+    <div class="hud" id="hud"></div>
+    <div class="transport">
+      <button id="play" class="primary" type="button">Pause</button>
+      <button id="stepbtn" type="button">Step</button>
+      <button id="reset" type="button">Reset</button>
+      <label class="inline">Speed <select id="rate">
+        <option value="1">1×</option><option value="2">2×</option><option value="4" selected>4×</option>
+        <option value="10">10×</option><option value="30">30×</option></select></label>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <label class="block">Scenario
+      <select id="preset"></select>
+    </label>
+    <p class="note" id="preset-note"></p>
+
+    <fieldset>
+      <legend>Assignment graph</legend>
+      <select id="kind">
+        <option value="cycle">Cycle (i chases i−1)</option>
+        <option value="cycle_branches">Cycle plus branches</option>
+        <option value="intree">Intree (root stands still)</option>
+        <option value="fig6e">Fig. 6(e) graph (8 agents)</option>
+        <option value="regular">Regular polygon (Lemma 3)</option>
+        <option value="none">No targets: reassignment (Prop. 17)</option>
+      </select>
+    </fieldset>
+
+    <div class="slider"><label for="n">Agents <output id="n-out"></output></label>
+      <input id="n" type="range" min="2" max="40" step="1"></div>
+    <div class="slider"><label for="phi">Windshield φ <output id="phi-out"></output></label>
+      <div class="phi-track"><input id="phi" type="range" min="0.05" max="1.2" step="0.005">
+        <div class="mark" id="mark-pin" title="π/n"></div><div class="mark bound" id="mark-bound" title="paper's bound"></div></div>
+      <div class="phi-legend"><span class="key pin"></span>π/n <span class="key bound"></span>paper's guarantee</div></div>
+    <div class="slider"><label for="omega">Turn rate ω <output id="omega-out"></output></label>
+      <input id="omega" type="range" min="0.5" max="10" step="0.1"></div>
+    <div class="slider"><label for="dt">Time step Δt <output id="dt-out"></output></label>
+      <input id="dt" type="range" min="0.01" max="0.2" step="0.01"></div>
+    <div class="slider"><label for="rho">Merging radius ρ <output id="rho-out"></output></label>
+      <input id="rho" type="range" min="0" max="1" step="0.01"></div>
+    <div class="slider"><label for="noise">Wrong readings <output id="noise-out"></output></label>
+      <input id="noise" type="range" min="0" max="0.5" step="0.05"></div>
+    <div class="slider"><label for="vmin">Slowest / fastest speed <output id="vmin-out"></output></label>
+      <input id="vmin" type="range" min="0.2" max="1" step="0.05"></div>
+    <div class="row">
+      <label class="inline">Seed <input id="seed" type="number" min="0" max="999999" step="1"></label>
+      <button id="reseed" type="button">New seed</button>
+    </div>
+
+    <fieldset class="toggles">
+      <legend>Show</legend>
+      <label><input type="checkbox" id="show-wind" checked> windshields</label>
+      <label><input type="checkbox" id="show-edges" checked> target lines</label>
+      <label><input type="checkbox" id="show-trails" checked> trails</label>
+      <label><input type="checkbox" id="show-labels"> labels</label>
+      <label title="Agents that start without their target in view keep going straight, as in eq. (43)"><input type="checkbox" id="paper"> paper's law exactly</label>
+    </fieldset>
+
+    <details class="about">
+      <summary>How it works</summary>
+      <p>Each agent is a Dubins car: it moves forward at a constant speed and can only go straight or turn left or right at rate ω. Its only sensor reports whether its assigned target is in the left half of the windshield, the right half, or out of view. When the target slips out of view, the agent turns toward the side it left from; when the target is back, it drives straight.</p>
+      <p>The sum of distances to targets, V, is a Lyapunov function: for a cycle of n agents it is guaranteed to decrease when φ is below the bound (π/n for n ≥ 5). Above π/n a regular polygon can grow forever. With sampled control the threshold is higher, about π/n + ωΔt/2, and moves toward π/n as ωΔt shrinks.</p>
+      <p>The green mark on the φ slider is the paper's guarantee that V decreases for the current graph and speeds (Theorems 4, 12, 13 and Lemma 11); the blue mark is π/n. For an intree with different speeds the paper only guarantees merging (Lemma 14, φ < π/2), so no mark is shown. Keys: space plays or pauses, s steps, r resets.</p>
+    </details>
+  </aside>
+</main>
+
+<footer class="foot">
+  Yu, LaValle, Liberzon, <em>Rendezvous Without Coordinates</em>, IEEE Trans. Automatic Control 57(2), 2012.
+</footer>
+
+<script src="js/rwc-engine.js"></script>
+<script src="js/demo.js"></script>
+</body>
+</html>
