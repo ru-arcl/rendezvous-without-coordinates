@@ -1,4 +1,4 @@
-# Rendezvous without coordinates
+# Rendezvous without Coordinates
 
 Robots that only know which side of their windshield their target slipped out of, and
 still all meet.
